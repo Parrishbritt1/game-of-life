@@ -6,6 +6,13 @@ def print_board(board):
 
 
 def get_neighbors(i, j, board, alive_neighbors):
+    """Returns a dictionary containing current cell as key and their respective amount neighboring alive cells
+    
+    Keyword arguments:
+    i -- row index
+    j -- column index
+    alive_neighbors - dictionary that will be returned at the end (this dictionary is reset in next_gen function)
+    """
     neighbors_pos = {}
 
     # TOP LEFT CELL
@@ -93,6 +100,7 @@ def get_neighbors(i, j, board, alive_neighbors):
 
 
 def next_gen(board):
+    """Returns a 2d array of the next generation of board"""
     alive_neighbors = {}
     # Loop through the board and create alive_neighbors 
     # which contains Key: current cell - Value: # of alive neighbors 
