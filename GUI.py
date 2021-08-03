@@ -10,20 +10,22 @@ FPS = 400
 START_BUTTON_LIGHT = "#1AC8F3"
 START_BUTTON_DARK = "#3399FF"
 
+# Button stuff
+start_button_clicked = False
+
 # Grid stuff
 CELL_WIDTH = 20
 CELL_HEIGHT = 20
 MARGIN = 5
 grid = []
 
-# Button stuff
-start_button_clicked = False
 for i in range(30):
     grid.append([])
     for j in range(30):
         grid[i].append(0)
 
 def draw_window(pos):
+    """Updates the Screen with grid and buttons"""
     for i in range(30):
         for j in range(30):
             color = "white"
@@ -62,9 +64,11 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            # Left click
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 grid_clicked(pos)
+            # Left click heled down
             elif pygame.mouse.get_pressed()[0]:
                 pos = pygame.mouse.get_pos()
                 grid_clicked(pos)
