@@ -6,10 +6,13 @@ def print_board(board):
 
 def next_gen(board):
     for i in range(len(board)):
-        for j in range(len(board)):
+        for j in range(len(board[i])):
             alive_neighbors = get_neighbors(i, j, board)
+        
 
 def get_neighbors(i, j, board):
+    print("---Get Neighbors called---")
+    neighbors = {}
     # TOP LEFT CELL
     if i == 0 and j == 0:
         neighbors["E"] = (i, j+1)
@@ -77,6 +80,11 @@ def get_neighbors(i, j, board):
         neighbors["W"] = (i, j-1)
         neighbors["NW"] = (i-1, j-1)
 
+    for neighbor_dir in neighbors:
+        print("row =", neighbors[neighbor_dir][0])
+        print("col =", neighbors[neighbor_dir][1])
+        print("new neighbor")
+
     
 
 # board = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -97,11 +105,8 @@ board = [[0, 0, 1, 1, 0],
          [0, 0, 0, 1, 0],
          [0, 0, 0, 1, 0]]
 
-neighbors = {}
 
 count = 0
-alive_neighbors = 0
-while count < 10:
-    next_gen(board)
-
-    count += 1
+next_gen(board)
+# while count < 10:
+#     count += 1
