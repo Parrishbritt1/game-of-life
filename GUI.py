@@ -10,8 +10,7 @@ FPS = 400
 START_BUTTON_LIGHT = "#1AC8F3"
 START_BUTTON_DARK = "#3399FF"
 
-# Button stuff
-start_button_clicked = False
+
 
 # Grid stuff
 CELL_WIDTH = 20
@@ -57,24 +56,29 @@ def grid_clicked(pos):
 
 
 def main():
+    start_button_clicked = False
     clock = pygame.time.Clock()
     run = True
     while run:
         clock.tick(FPS)
+        pos = pygame.mouse.get_pos()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            # Left click
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                grid_clicked(pos)
-            # Left click heled down
+            # Left click 
             elif pygame.mouse.get_pressed()[0]:
-                pos = pygame.mouse.get_pos()
                 grid_clicked(pos)
+                # On left click button up
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if 328 <= pos[0] <= 447 and 760 <= pos[1] <= 790:
+                    start_button_clicked = True
+                else:
+                    start_button_clicked = False
+                print(start_button_clicked)
+        
 
         screen.fill("gray")
-        pos = pygame.mouse.get_pos()
         draw_window(pos)
 
     pygame.quit()
