@@ -16,6 +16,8 @@ START_BUTTON_LIGHT = "#1AC8F3"
 START_BUTTON_DARK = "#3399FF"
 STOP_BUTTON_LIGHT = "#FF0000"
 STOP_BUTTON_DARK =  "#B92E34"
+CLEAR_BUTTON_LIGHT = "#808080"
+CLEAR_BUTTON_DARK = "#5a5a5a"
 
 # Grid stuff
 CELL_WIDTH = 20
@@ -23,6 +25,13 @@ CELL_HEIGHT = 20
 MARGIN = 5
 num_cell_cols = 30
 num_cell_rows = 22
+
+# Handy utility functions 
+def pos_over_start(pos):
+    return 328 <= pos[0] <= 447 and 560 <= pos[1] <= 590
+
+def pos_over_clear(pos):
+    return 620 <= pos[0] <= 740 and 560 <= pos[1] <= 590
 
 
 def update_window(pos, grid, started, generation_count):
@@ -59,9 +68,17 @@ def update_window(pos, grid, started, generation_count):
     # Generation counter
     generation_text = font.render("Generation: "+str(generation_count), True, "black")
     screen.blit(generation_text, (100, 560))
-    
-    pygame.display.flip()
 
+    # Clear button
+    if pos_over_clear(pos):
+        pygame.draw.rect(screen, CLEAR_BUTTON_LIGHT, [620, 558, 120, 34])
+    else:
+        pygame.draw.rect(screen, CLEAR_BUTTON_DARK, [620, 558, 120, 34])
+
+    clear_text = font.render("CLEAR", True, "black")
+    screen.blit(clear_text, (625, 560))
+
+    pygame.display.flip()
 
 
 def is_grid_clicked(pos, grid, is_right_click):
@@ -76,8 +93,11 @@ def is_grid_clicked(pos, grid, is_right_click):
             row = pos[1] // (CELL_HEIGHT + MARGIN)
             grid[row][col] = 1
 
-def pos_over_start(pos):
-    return 328 <= pos[0] <= 447 and 560 <= pos[1] <= 590
+
+def clear_grid(grid):
+    for i in range(num_cell_rows):
+        for j in range(num_cell_cols):
+            grid[i][j] = 0
 
 def main():
     grid = []
@@ -112,6 +132,10 @@ def main():
                     started = True
                 elif pos_over_start(pos) and started:
                     started = False
+
+                if pos_over_clear(pos) and not started:
+                    clear_grid(grid)
+                    generation_count = 0
 
         screen.fill("gray")
 
