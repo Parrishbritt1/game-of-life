@@ -51,19 +51,25 @@ def update_window(pos, grid, started):
 
     font = pygame.font.SysFont("Corbel", 35)
     if started:
-        text = font.render("Stop", True, "black")
+        text = font.render("STOP", True, "black")
     else:
-        text = font.render("Start", True, "black")
-    screen.blit(text, (355, 560))
+        text = font.render("START", True, "black")
+    screen.blit(text, (345, 560))
     pygame.display.flip()
 
 
 
-def is_grid_clicked(pos, grid):
-    if pos[1] < 550 and pos[0] < 750:
-        col = pos[0] // (CELL_WIDTH + MARGIN)
-        row = pos[1] // (CELL_HEIGHT + MARGIN)
-        grid[row][col] = 1
+def is_grid_clicked(pos, grid, is_right_click):
+    if is_right_click:
+        if pos[1] < 550 and pos[0] < 750:
+            col = pos[0] // (CELL_WIDTH + MARGIN)
+            row = pos[1] // (CELL_HEIGHT + MARGIN)
+            grid[row][col] = 0
+    else:
+        if pos[1] < 550 and pos[0] < 750:
+            col = pos[0] // (CELL_WIDTH + MARGIN)
+            row = pos[1] // (CELL_HEIGHT + MARGIN)
+            grid[row][col] = 1
 
 def pos_over_start(pos):
     return 328 <= pos[0] <= 447 and 560 <= pos[1] <= 590
@@ -89,7 +95,12 @@ def main():
             # Left click heled down
             elif pygame.mouse.get_pressed()[0]:
                 if not started:
-                    is_grid_clicked(pos, grid)
+                    is_grid_clicked(pos, grid, False)
+
+            # Right click held down
+            elif pygame.mouse.get_pressed()[2]:
+                if not started:
+                    is_grid_clicked(pos, grid, True)
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 if pos_over_start(pos) and not started:
