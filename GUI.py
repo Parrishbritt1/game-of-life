@@ -25,7 +25,7 @@ num_cell_cols = 30
 num_cell_rows = 22
 
 
-def update_window(pos, grid, started):
+def update_window(pos, grid, started, generation_count):
     rects = []
     for i in range(num_cell_rows):
         for j in range(num_cell_cols):
@@ -38,7 +38,7 @@ def update_window(pos, grid, started):
                                             CELL_HEIGHT]))
 
 
-    # Start button hovered
+    # Start and Stop button hovered
     if pos_over_start(pos) and not started:
         pygame.draw.rect(screen, START_BUTTON_LIGHT, [WIDTH//2.3, 558, 120, 34])
     elif not started:
@@ -48,13 +48,18 @@ def update_window(pos, grid, started):
     elif started:
         pygame.draw.rect(screen, STOP_BUTTON_DARK, [WIDTH//2.3, 558, 120, 34])
 
-
+    # Start and Stop text rendering
     font = pygame.font.SysFont("Corbel", 35)
     if started:
-        text = font.render("STOP", True, "black")
+        start_stop_text = font.render("STOP", True, "black")
     else:
-        text = font.render("START", True, "black")
-    screen.blit(text, (345, 560))
+        start_stop_text = font.render("START", True, "black")
+    screen.blit(start_stop_text, (345, 560))
+
+    # Generation counter
+    generation_text = font.render("Generation: "+str(generation_count), True, "black")
+    screen.blit(generation_text, (100, 560))
+    
     pygame.display.flip()
 
 
@@ -74,7 +79,6 @@ def is_grid_clicked(pos, grid, is_right_click):
 def pos_over_start(pos):
     return 328 <= pos[0] <= 447 and 560 <= pos[1] <= 590
 
-
 def main():
     grid = []
     for i in range(num_cell_rows):
@@ -85,6 +89,7 @@ def main():
     clock = pygame.time.Clock()
     started = False
     run = True
+    generation_count = 0
     while run:
         clock.tick(FPS)
         pos = pygame.mouse.get_pos()
@@ -112,9 +117,10 @@ def main():
 
         if started:
             grid = next_gen(grid)
-            clock.tick(10)
+            generation_count += 1
+            clock.tick(5)
 
-        update_window(pos, grid, started)
+        update_window(pos, grid, started, generation_count)
     
 
     pygame.quit()
