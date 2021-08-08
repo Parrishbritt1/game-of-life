@@ -1,63 +1,83 @@
 import pygame
+from GOL import next_gen
+import time
 
 
 # Screen stuff
 pygame.init()
-WIDTH, HEIGHT = 755, 800
+# ---- PC size ----
+# WIDTH, HEIGHT = 755, 800
+# --- Laptop size ---
+WIDTH, HEIGHT = 755, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game of Life")
-FPS = 400
+FPS = 60
 START_BUTTON_LIGHT = "#1AC8F3"
 START_BUTTON_DARK = "#3399FF"
-
-
+STOP_BUTTON_LIGHT = "#FF0000"
+STOP_BUTTON_DARK =  "#B92E34"
 
 # Grid stuff
 CELL_WIDTH = 20
 CELL_HEIGHT = 20
 MARGIN = 5
-grid = []
+num_cell_cols = 30
+num_cell_rows = 22
 
-for i in range(30):
-    grid.append([])
-    for j in range(30):
-        grid[i].append(0)
 
-def draw_window(pos):
-    """Updates the Screen with grid and buttons"""
-    for i in range(30):
-        for j in range(30):
+def update_window(pos, grid, started):
+    rects = []
+    for i in range(num_cell_rows):
+        for j in range(num_cell_cols):
             color = "white"
             if grid[i][j] == 1:
                 color = "green"
-            pygame.draw.rect(screen, color, [(MARGIN + CELL_WIDTH) * j + MARGIN,
-                                             (MARGIN + CELL_HEIGHT) * i + MARGIN,
-                                             CELL_WIDTH,
-                                             CELL_HEIGHT])
-    
-    
+            rects.append(pygame.draw.rect(screen, color, [(MARGIN + CELL_WIDTH) * j + MARGIN,
+                                            (MARGIN + CELL_HEIGHT) * i + MARGIN,
+                                            CELL_WIDTH,
+                                            CELL_HEIGHT]))
+
+
     # Start button hovered
-    if 328 <= pos[0] <= 447 and 760 <= pos[1] <= 790:
-        pygame.draw.rect(screen, START_BUTTON_LIGHT, [WIDTH//2.3, 758, 120, 34])
-    else:
-        pygame.draw.rect(screen, START_BUTTON_DARK, [WIDTH//2.3, 758, 120, 34])
+    if pos_over_start(pos) and not started:
+        pygame.draw.rect(screen, START_BUTTON_LIGHT, [WIDTH//2.3, 558, 120, 34])
+    elif not started:
+        pygame.draw.rect(screen, START_BUTTON_DARK, [WIDTH//2.3, 558, 120, 34])
+    elif pos_over_start(pos) and started:
+        pygame.draw.rect(screen, STOP_BUTTON_LIGHT, [WIDTH//2.3, 558, 120, 34])
+    elif started:
+        pygame.draw.rect(screen, STOP_BUTTON_DARK, [WIDTH//2.3, 558, 120, 34])
+
 
     font = pygame.font.SysFont("Corbel", 35)
-    text = font.render("Start", True, "black")
-    screen.blit(text, (355, 760))
+    if started:
+        text = font.render("Stop", True, "black")
+    else:
+        text = font.render("Start", True, "black")
+    screen.blit(text, (355, 560))
     pygame.display.flip()
 
-def grid_clicked(pos):
-    if pos[1] < 750 and pos[0] < 750:
+
+
+def is_grid_clicked(pos, grid):
+    if pos[1] < 550 and pos[0] < 750:
         col = pos[0] // (CELL_WIDTH + MARGIN)
         row = pos[1] // (CELL_HEIGHT + MARGIN)
         grid[row][col] = 1
 
+def pos_over_start(pos):
+    return 328 <= pos[0] <= 447 and 560 <= pos[1] <= 590
 
 
 def main():
-    start_button_clicked = False
+    grid = []
+    for i in range(num_cell_rows):
+        grid.append([])
+        for j in range(num_cell_cols):
+            grid[i].append(0)
+
     clock = pygame.time.Clock()
+    started = False
     run = True
     while run:
         clock.tick(FPS)
@@ -66,20 +86,25 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            # Left click 
+            # Left click heled down
             elif pygame.mouse.get_pressed()[0]:
-                grid_clicked(pos)
-                # On left click button up
+                if not started:
+                    is_grid_clicked(pos, grid)
+
             elif event.type == pygame.MOUSEBUTTONUP:
-                if 328 <= pos[0] <= 447 and 760 <= pos[1] <= 790:
-                    start_button_clicked = True
-                else:
-                    start_button_clicked = False
-                print(start_button_clicked)
-        
+                if pos_over_start(pos) and not started:
+                    started = True
+                elif pos_over_start(pos) and started:
+                    started = False
 
         screen.fill("gray")
-        draw_window(pos)
+
+        if started:
+            grid = next_gen(grid)
+            clock.tick(10)
+
+        update_window(pos, grid, started)
+    
 
     pygame.quit()
 
