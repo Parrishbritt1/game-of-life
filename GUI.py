@@ -67,7 +67,7 @@ def update_window(pos, grid, started, generation_count):
 
     # Generation counter
     generation_text = font.render("Generation: "+str(generation_count), True, "black")
-    screen.blit(generation_text, (100, 560))
+    screen.blit(generation_text, (70, 560))
 
     # Clear button
     if pos_over_clear(pos):
