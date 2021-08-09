@@ -1,4 +1,5 @@
 import pygame
+from pygame.constants import KEYDOWN, K_ESCAPE
 from GOL import next_gen
 import time
 
@@ -69,6 +70,9 @@ def update_window(pos, grid, started, generation_count):
     generation_text = font.render("Generation: "+str(generation_count), True, "black")
     screen.blit(generation_text, (70, 560))
 
+    # Back button
+    pygame.draw.circle(screen, "#49ee13", (490, 568), 20)
+
     # Clear button
     if pos_over_clear(pos):
         pygame.draw.rect(screen, CLEAR_BUTTON_LIGHT, [620, 558, 120, 34])
@@ -77,6 +81,7 @@ def update_window(pos, grid, started, generation_count):
 
     clear_text = font.render("CLEAR", True, "black")
     screen.blit(clear_text, (625, 560))
+
 
     pygame.display.flip()
 
@@ -117,10 +122,14 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    run = False
             # Left click heled down
             elif pygame.mouse.get_pressed()[0]:
                 if not started:
-                    is_grid_clicked(pos, grid, False)
+                    is_grid_clicked(pos, grid, False)      
 
             # Right click held down
             elif pygame.mouse.get_pressed()[2]:
