@@ -4,6 +4,20 @@ from GOL import next_gen
 import time
 
 
+class Button:
+    def __init__(self, screen, color,  x, y, radius=None, ):
+        self.screen = screen
+        self.color = color
+        self.x = x
+        self.y = y
+        if radius is not None:
+            self.radius = radius
+
+
+    def mouse_over(self, pos):
+        pass
+
+
 # Screen stuff
 pygame.init()
 # ---- PC size ----
@@ -19,6 +33,8 @@ STOP_BUTTON_LIGHT = "#FF0000"
 STOP_BUTTON_DARK =  "#B92E34"
 CLEAR_BUTTON_LIGHT = "#808080"
 CLEAR_BUTTON_DARK = "#5a5a5a"
+MOVE_BUTTON_LIGHT = "#00FF00"
+MOVE_BUTTON_DARK = "#00D100"
 
 # Grid stuff
 CELL_WIDTH = 20
@@ -71,7 +87,15 @@ def update_window(pos, grid, started, generation_count):
     screen.blit(generation_text, (70, 560))
 
     # Back button
-    pygame.draw.circle(screen, "#49ee13", (490, 568), 20)
+    pygame.draw.circle(screen, "#49ee13", (520, 575), 20)
+    back_text = font.render("<", True, "black")
+    screen.blit(back_text, (510, 558))
+
+
+    # Forward button
+    pygame.draw.circle(screen, "#49ee13", (570, 575), 20)
+    forward_text = font.render(">", True, "black")
+    screen.blit(forward_text, (565, 558))
 
     # Clear button
     if pos_over_clear(pos):
