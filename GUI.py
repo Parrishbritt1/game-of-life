@@ -94,11 +94,11 @@ def update_window(pos, grid, started, generation_count, screen):
     if pos is not None:
         if BUTTONS["start"].mouse_over(pos):
             start_color = START_BUTTON_LIGHT
-        elif BUTTONS["clear"].mouse_over(pos):
+        elif BUTTONS["clear"].mouse_over(pos) and not started:
             clear_color = CLEAR_BUTTON_LIGHT
-        elif BUTTONS["back"].mouse_over(pos):
+        elif BUTTONS["back"].mouse_over(pos) and not started:
             back_color = MOVE_BUTTON_LIGHT
-        elif BUTTONS["forward"].mouse_over(pos):
+        elif BUTTONS["forward"].mouse_over(pos) and not started:
             forward_color = MOVE_BUTTON_LIGHT
     BUTTONS["start"].draw_button(start_color)
     BUTTONS["clear"].draw_button(clear_color)
