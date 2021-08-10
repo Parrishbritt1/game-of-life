@@ -8,12 +8,15 @@ import time
 WIDTH, HEIGHT = 755, 600
 FPS = 60
 
-# Grid stuff
-CELL_WIDTH = 20
-CELL_HEIGHT = 20
-MARGIN = 5
-num_cell_cols = 30
-num_cell_rows = 22
+BUTTONS = {}
+START_BUTTON_LIGHT = "#1AC8F3"
+START_BUTTON_DARK = "#3399FF"
+STOP_BUTTON_LIGHT = "#FF0000"
+STOP_BUTTON_DARK =  "#B92E34"
+CLEAR_BUTTON_LIGHT = "#808080"
+CLEAR_BUTTON_DARK = "#5a5a5a"
+MOVE_BUTTON_LIGHT = "#00FF00"
+MOVE_BUTTON_DARK = "#00D100"
 
 class Button:
     def __init__(self, screen, name, text, text_x, text_y, shape, center_x=None, center_y=None, radius=None, top_left=None, top_right=None, bottom_left=None, bottom_right=None):
@@ -63,15 +66,51 @@ class Button:
         elif self.name == "forward":
             pass
     
-BUTTONS = {}
-START_BUTTON_LIGHT = "#1AC8F3"
-START_BUTTON_DARK = "#3399FF"
-STOP_BUTTON_LIGHT = "#FF0000"
-STOP_BUTTON_DARK =  "#B92E34"
-CLEAR_BUTTON_LIGHT = "#808080"
-CLEAR_BUTTON_DARK = "#5a5a5a"
-MOVE_BUTTON_LIGHT = "#00FF00"
-MOVE_BUTTON_DARK = "#00D100"
+class Grid:
+    def __init__(self):
+        self.row_length = 22
+        self.column_length = 30
+        self.cell_width = 20
+        self.cell_height = 20
+        self.margin = 5
+        self.grid = self.create_grid()
+
+    def create_grid(self):
+        grid = []
+        for i in range(self.row_length):
+            grid.append([])
+            for _ in range(self.column_length):
+                grid[i].append(0)
+        return grid
+
+    def draw_grid(self, screen):
+        for i in range(self.row_length):
+            for j in range(self.column_length):
+                color = "white"
+                if self.grid[i][j] == 1:
+                    color = "green"
+                pygame.draw.rect(screen, color, [(self.margin + self.cell_width) * j + self.margin,
+                                                (self.margin + self.cell_height) * i + self.margin,
+                                                self.cell_width,
+                                                self.cell_height])
+
+    def clear_grid(self):
+        for i in range(self.row_length):
+            for j in range(self.column_length):
+                self.grid[i][j] = 0
+
+    def is_grid_clicked(self, pos, is_right_click):
+        if is_right_click:
+            if pos[1] < 550 and pos[0] < 750:
+                col = pos[0] // (self.cell_width + self.margin)
+                row = pos[1] // (self.cell_height + self.margin)
+                self.grid[row][col] = 0
+        else:
+            if pos[1] < 550 and pos[0] < 750:
+                col = pos[0] // (self.cell_width + self.margin)
+                row = pos[1] // (self.cell_height + self.margin)
+                self.grid[row][col] = 1
+
 
 def create_buttons(screen):
     BUTTONS["start"] = Button(screen, name="start", text="START", text_x=345, text_y=560, shape="rect", top_left=WIDTH//2.3, top_right=558, bottom_left=120, bottom_right=34)
@@ -79,18 +118,9 @@ def create_buttons(screen):
     BUTTONS["back"] = Button(screen, name="back", text="<", text_x=510, text_y=558, shape="circle", center_x=520, center_y=575, radius=20)
     BUTTONS["forward"] = Button(screen, name="forward", text=">", text_x=565, text_y=558, shape="circle", center_x=570, center_y=575, radius=20)
 
-def update_window(pos, grid, started, generation_count, screen):
-    rects = []
-    for i in range(num_cell_rows):
-        for j in range(num_cell_cols):
-            color = "white"
-            if grid[i][j] == 1:
-                color = "green"
-            rects.append(pygame.draw.rect(screen, color, [(MARGIN + CELL_WIDTH) * j + MARGIN,
-                                            (MARGIN + CELL_HEIGHT) * i + MARGIN,
-                                            CELL_WIDTH,
-                                            CELL_HEIGHT]))
-
+def update_window(pos, started, generation_count, screen, g):
+    g.draw_grid(screen)
+    
     start_color = START_BUTTON_DARK
     clear_color = CLEAR_BUTTON_DARK
     back_color = MOVE_BUTTON_DARK
@@ -121,24 +151,6 @@ def update_window(pos, grid, started, generation_count, screen):
     pygame.display.flip()
 
 
-def is_grid_clicked(pos, grid, is_right_click):
-    if is_right_click:
-        if pos[1] < 550 and pos[0] < 750:
-            col = pos[0] // (CELL_WIDTH + MARGIN)
-            row = pos[1] // (CELL_HEIGHT + MARGIN)
-            grid[row][col] = 0
-    else:
-        if pos[1] < 550 and pos[0] < 750:
-            col = pos[0] // (CELL_WIDTH + MARGIN)
-            row = pos[1] // (CELL_HEIGHT + MARGIN)
-            grid[row][col] = 1
-
-
-def clear_grid(grid):
-    for i in range(num_cell_rows):
-        for j in range(num_cell_cols):
-            grid[i][j] = 0
-
 def main():
     # Screen stuff
     pygame.init()
@@ -147,14 +159,8 @@ def main():
     # --- Laptop size ---
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Game of Life")
-
-    grid = []
-    for i in range(num_cell_rows):
-        grid.append([])
-        for j in range(num_cell_cols):
-            grid[i].append(0)
-
-
+    
+    g = Grid()
     create_buttons(screen)
 
     clock = pygame.time.Clock()
@@ -176,12 +182,12 @@ def main():
             # Left click heled down
             elif pygame.mouse.get_pressed()[0]:
                 if not started:
-                    is_grid_clicked(pos, grid, False)      
+                    g.is_grid_clicked(pos, False)      
 
             # Right click held down
             elif pygame.mouse.get_pressed()[2]:
                 if not started:
-                    is_grid_clicked(pos, grid, True)
+                    g.is_grid_clicked(pos, True)
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 if BUTTONS["start"].mouse_over(pos) and not started:
@@ -190,17 +196,17 @@ def main():
                     started = False
 
                 if BUTTONS["clear"].mouse_over(pos) and not started:
-                    clear_grid(grid)
+                    g.clear_grid()
                     generation_count = 0
 
         screen.fill("gray")
 
         if started:
-            grid = next_gen(grid)
+            g.grid = next_gen(g.grid)
             generation_count += 1
             clock.tick(5)
 
-        update_window(pos, grid, started, generation_count, screen)
+        update_window(pos, started, generation_count, screen, g)
     
 
     pygame.quit()
