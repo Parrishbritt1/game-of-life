@@ -39,12 +39,16 @@ class Button:
     def __str__(self):
         return self.name
 
-    def draw_button(self, color):
+    def draw_button(self, color, started):
         if self.shape == "circle":
             pygame.draw.circle(self.screen, color, (self.center_x, self.center_y), self.radius)
         elif self.shape == "rect":
             pygame.draw.rect(self.screen, color, [self.top_left, self.top_right, self.bottom_left, self.bottom_right])
 
+        if self.name == "start" and started:
+            self.text = "STOP"
+        elif self.name == "start" and not started:
+            self.text = "START"
         font = pygame.font.SysFont("Corbel", 35)
         text = font.render(self.text, True, "black")
         self.screen.blit(text, (self.text_x, self.text_y))
@@ -92,18 +96,22 @@ def update_window(pos, grid, started, generation_count, screen):
     back_color = MOVE_BUTTON_DARK
     forward_color = MOVE_BUTTON_DARK
     if pos is not None:
-        if BUTTONS["start"].mouse_over(pos):
+        if BUTTONS["start"].mouse_over(pos) and not started:
             start_color = START_BUTTON_LIGHT
+        elif BUTTONS["start"].mouse_over(pos) and started:
+            start_color = STOP_BUTTON_LIGHT
         elif BUTTONS["clear"].mouse_over(pos) and not started:
             clear_color = CLEAR_BUTTON_LIGHT
         elif BUTTONS["back"].mouse_over(pos) and not started:
             back_color = MOVE_BUTTON_LIGHT
         elif BUTTONS["forward"].mouse_over(pos) and not started:
             forward_color = MOVE_BUTTON_LIGHT
-    BUTTONS["start"].draw_button(start_color)
-    BUTTONS["clear"].draw_button(clear_color)
-    BUTTONS["back"].draw_button(back_color)
-    BUTTONS["forward"].draw_button(forward_color)
+    if started and start_color != STOP_BUTTON_LIGHT:
+        start_color = STOP_BUTTON_DARK
+    BUTTONS["start"].draw_button(start_color, started)
+    BUTTONS["clear"].draw_button(clear_color, started)
+    BUTTONS["back"].draw_button(back_color, started)
+    BUTTONS["forward"].draw_button(forward_color, started)
 
     # Generation counter
     font = pygame.font.SysFont("Corbel", 35)
