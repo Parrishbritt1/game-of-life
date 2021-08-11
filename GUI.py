@@ -2,7 +2,7 @@ from types import prepare_class
 import pygame
 from pygame.constants import KEYDOWN, K_ESCAPE
 from GOL import next_gen
-import time
+import math
 
 
 WIDTH, HEIGHT = 755, 600
@@ -62,9 +62,9 @@ class Button:
         elif self.name == "clear":
             return 620 <= pos[0] <= 740 and 560 <= pos[1] <= 590
         elif self.name == "back":
-            pass
+            return math.hypot(self.center_x-pos[0], self.center_y-pos[1]) <= self.radius
         elif self.name == "forward":
-            pass
+            return math.hypot(self.center_x-pos[0], self.center_y-pos[1]) <= self.radius
     
 class Grid:
     def __init__(self):
@@ -195,6 +195,12 @@ def main():
                 elif BUTTONS["start"].mouse_over(pos) and started:
                     started = False
 
+                if BUTTONS["back"].mouse_over(pos) and not started:
+                    # TODO: move grid state back a generation
+                    pass
+                if BUTTONS["forward"].mouse_over(pos) and not started:
+                    # TODO: move grid forward a generation
+                    pass
                 if BUTTONS["clear"].mouse_over(pos) and not started:
                     g.clear_grid()
                     generation_count = 0
