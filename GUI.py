@@ -1,7 +1,6 @@
-from types import prepare_class
 import pygame
 from pygame.constants import KEYDOWN, K_ESCAPE
-from GOL import next_gen
+from GOL import next_gen, print_board
 import math
 
 
@@ -118,7 +117,7 @@ def create_buttons(screen):
     BUTTONS["back"] = Button(screen, name="back", text="<", text_x=510, text_y=558, shape="circle", center_x=520, center_y=575, radius=20)
     BUTTONS["forward"] = Button(screen, name="forward", text=">", text_x=565, text_y=558, shape="circle", center_x=570, center_y=575, radius=20)
 
-def update_window(pos, started, generation_count, screen, g):
+def update_window(pos, started, current_gen, screen, g):
     g.draw_grid(screen)
     
     start_color = START_BUTTON_DARK
@@ -145,7 +144,7 @@ def update_window(pos, started, generation_count, screen, g):
 
     # Generation counter
     font = pygame.font.SysFont("Corbel", 35)
-    generation_text = font.render("Generation: "+str(generation_count), True, "black")
+    generation_text = font.render("Generation: "+str(current_gen), True, "black")
     screen.blit(generation_text, (70, 560))
 
     pygame.display.flip()
@@ -161,12 +160,12 @@ def main():
     pygame.display.set_caption("Game of Life")
     
     g = Grid()
+    grid_states = {}
     create_buttons(screen)
-
+    
     clock = pygame.time.Clock()
     started = False
-    generation_count = 0
-    pos = None
+    current_gen = 0
     run = True
     while run:
         clock.tick(FPS)
@@ -192,29 +191,42 @@ def main():
             elif event.type == pygame.MOUSEBUTTONUP:
                 if BUTTONS["start"].mouse_over(pos) and not started:
                     started = True
+                    grid_states[current_gen] = g.grid
                 elif BUTTONS["start"].mouse_over(pos) and started:
                     started = False
 
                 if BUTTONS["back"].mouse_over(pos) and not started:
-                    # TODO: move grid state back a generation
-                    pass
+                    if current_gen - 1 in grid_states:
+                        current_gen -= 1
+                        g.grid = grid_states[current_gen]
+
                 if BUTTONS["forward"].mouse_over(pos) and not started:
-                    # TODO: move grid forward a generation
-                    pass
+                    if current_gen == 0:
+                        grid_states[current_gen] = g.grid
+
+                    if current_gen + 1 in grid_states:
+                        current_gen += 1
+                        g.grid = grid_states[current_gen]
+                    else:
+                        g.grid = next_gen(g.grid)
+                        current_gen += 1
+                        grid_states[current_gen] = g.grid
+
                 if BUTTONS["clear"].mouse_over(pos) and not started:
                     g.clear_grid()
-                    generation_count = 0
+                    grid_states.clear()
+                    current_gen = 0
 
         screen.fill("gray")
 
         if started:
             g.grid = next_gen(g.grid)
-            generation_count += 1
+            current_gen += 1
+            grid_states[current_gen] = g.grid
             clock.tick(5)
 
-        update_window(pos, started, generation_count, screen, g)
+        update_window(pos, started, current_gen, screen, g)
     
-
     pygame.quit()
 
 
