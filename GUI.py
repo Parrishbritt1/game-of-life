@@ -1,6 +1,6 @@
 import pygame
 from pygame.constants import KEYDOWN, K_ESCAPE
-from GOL import next_gen, print_board
+from GOL import next_gen
 import math
 
 
