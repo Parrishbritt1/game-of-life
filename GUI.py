@@ -62,7 +62,7 @@ class Button:
         elif self.name == "clear":
             return 620 <= pos[0] <= 740 and 560 <= pos[1] <= 590
         elif self.name == "back":
-            pass
+            return 
         elif self.name == "forward":
             pass
     
@@ -195,6 +195,9 @@ def main():
                 elif BUTTONS["start"].mouse_over(pos) and started:
                     started = False
 
+                elif BUTTONS["back"].mouse_over(pos):
+                    pass
+
                 if BUTTONS["clear"].mouse_over(pos) and not started:
                     g.clear_grid()
                     generation_count = 0
@@ -207,7 +210,6 @@ def main():
             clock.tick(5)
 
         update_window(pos, started, generation_count, screen, g)
-    
 
     pygame.quit()
 
