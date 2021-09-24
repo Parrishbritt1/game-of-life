@@ -1,10 +1,3 @@
-def print_board(board):
-    for i in range(len(board)):
-        print(board[i])
-
-    print()
-
-
 def get_neighbors(i, j, board, alive_neighbors):
     """Returns a dictionary containing current cell as key and their respective amount neighboring alive cells
     
@@ -150,11 +143,10 @@ def main():
 
     count = 0
     while count < 10:
-        print_board(board)
+        print(board)
         board = next_gen(board)
         count += 1
 
 
 if __name__ == "__main__":
     main()
-

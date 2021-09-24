@@ -1,13 +1,16 @@
-from types import prepare_class
 import pygame
 from pygame.constants import KEYDOWN, K_ESCAPE
 from GOL import next_gen
-import time
+import math
 
-
+# Screen
+# ---- PC size ----
+# WIDTH, HEIGHT = 755, 800
+# ---- Laptop size ---
 WIDTH, HEIGHT = 755, 600
 FPS = 60
 
+# BUTTONS dictionary contains Key - "button_name" : Value - "<Button>"
 BUTTONS = {}
 START_BUTTON_LIGHT = "#1AC8F3"
 START_BUTTON_DARK = "#3399FF"
@@ -18,53 +21,80 @@ CLEAR_BUTTON_DARK = "#5a5a5a"
 MOVE_BUTTON_LIGHT = "#00FF00"
 MOVE_BUTTON_DARK = "#00D100"
 
+
 class Button:
-    def __init__(self, screen, name, text, text_x, text_y, shape, center_x=None, center_y=None, radius=None, top_left=None, top_right=None, bottom_left=None, bottom_right=None):
+    def __init__(self, screen, name, text, text_x, text_y):
         self.screen = screen
         self.name = name.lower()
         self.text = text
         self.text_x = text_x
         self.text_y = text_y
-        self.shape = shape.lower()
 
-        # Circle inputs
-        if radius is not None and center_x is not None and center_y is not None:
-            self.radius = radius
-            self.center_x = center_x
-            self.center_y = center_y
-        # Rect inputs
-        elif top_left is not None and top_right is not None and bottom_left is not None and bottom_right is not None:
-            self.top_left = top_left
-            self.top_right = top_right
-            self.bottom_left = bottom_left
-            self.bottom_right = bottom_right
 
     def __str__(self):
         return self.name
 
-    def draw_button(self, color, started):
-        if self.shape == "circle":
-            pygame.draw.circle(self.screen, color, (self.center_x, self.center_y), self.radius)
-        elif self.shape == "rect":
-            pygame.draw.rect(self.screen, color, [self.top_left, self.top_right, self.bottom_left, self.bottom_right])
+    def draw_button(self, started):
+        """Drawing background and text onto screen
+
+        Keyword arguments:
+        started -- Boolean to determine whether the 'start' button should say START or STOP 
+        """        
 
         if self.name == "start" and started:
             self.text = "STOP"
         elif self.name == "start" and not started:
             self.text = "START"
+
         font = pygame.font.SysFont("Corbel", 35)
         text = font.render(self.text, True, "black")
-        self.screen.blit(text, (self.text_x, self.text_y))
+        self.screen.blit(text, (self.text_x, self.text_y))        
+
+
+class CircleButton(Button):
+    def __init__(self, screen, name, text, text_x, text_y, center_x, center_y, radius):
+        super().__init__(screen, name, text, text_x, text_y)
+        self.center_x = center_x
+        self.center_y = center_y
+        self.radius = radius
+
+    def draw_button(self, color, started):
+        pygame.draw.circle(self.screen, color, (self.center_x, self.center_y), self.radius)
+        super().draw_button(started)
 
     def mouse_over(self, pos):
-        if self.name == "start":
-            return 328 <= pos[0] <= 447 and 560 <= pos[1] <= 590
-        elif self.name == "clear":
-            return 620 <= pos[0] <= 740 and 560 <= pos[1] <= 590
-        elif self.name == "back":
-            return 
-        elif self.name == "forward":
-            pass
+        """Returns True if mouse is over Button
+
+        Keyword arguments:
+        pos -- (x, y) coords of mouse position
+        """
+        return math.hypot(self.center_x-pos[0], self.center_y-pos[1]) <= self.radius
+
+
+class RectangleButton(Button):
+    def __init__(self, screen, name, text, text_x, text_y, top_left, top_right, bottom_left, bottom_right):
+        super().__init__(screen, name, text, text_x, text_y)
+        self.top_left = top_left
+        self.top_right = top_right
+        self.bottom_left = bottom_left
+        self.bottom_right = bottom_right
+
+    def draw_button(self, color, started):
+        pygame.draw.rect(self.screen, color, [self.top_left, self.top_right, self.bottom_left, self.bottom_right])
+        super().draw_button(started)
+
+    def mouse_over(self, pos, left_bound, right_bound, top_bound, bottom_bound):
+        """Returns True if mouse is over Button
+
+        Keyword arguments:
+        pos -- (x, y) coords of mouse position
+        left_bound -- x coord for left of button
+        right_bound -- x coord for right of button
+        top_bound -- y coord for top of button
+        bottom_bound -- y coord for bottom of button
+        """
+        return left_bound <= pos[0] <= right_bound and top_bound <= pos[1] <= bottom_bound
+
     
 class Grid:
     def __init__(self):
@@ -76,6 +106,8 @@ class Grid:
         self.grid = self.create_grid()
 
     def create_grid(self):
+        """Creates 2D array filled with 0
+        """
         grid = []
         for i in range(self.row_length):
             grid.append([])
@@ -84,6 +116,11 @@ class Grid:
         return grid
 
     def draw_grid(self, screen):
+        """Draws the rectangles onto screen representing the grid
+
+        Keyword aruments:
+        screen -- the pygame screen to draw on
+        """
         for i in range(self.row_length):
             for j in range(self.column_length):
                 color = "white"
@@ -95,11 +132,19 @@ class Grid:
                                                 self.cell_height])
 
     def clear_grid(self):
+        """Changes all elements in grid to 0
+        """
         for i in range(self.row_length):
             for j in range(self.column_length):
                 self.grid[i][j] = 0
 
     def is_grid_clicked(self, pos, is_right_click):
+        """Changes grid element to be 0(dead) or 1(alive) depending on where the mouse is positioned at time of click
+
+        Keyword arguments:
+        pos -- (x, y) coords of mouse position
+        is_right_click -- if the click was a right click it (erases the cell) and vice versa
+        """
         if is_right_click:
             if pos[1] < 550 and pos[0] < 750:
                 col = pos[0] // (self.cell_width + self.margin)
@@ -113,31 +158,38 @@ class Grid:
 
 
 def create_buttons(screen):
-    BUTTONS["start"] = Button(screen, name="start", text="START", text_x=345, text_y=560, shape="rect", top_left=WIDTH//2.3, top_right=558, bottom_left=120, bottom_right=34)
-    BUTTONS["clear"] = Button(screen, name="clear", text="CLEAR", text_x=625, text_y=560, shape="rect", top_left=620, top_right=558, bottom_left=120, bottom_right=34)
-    BUTTONS["back"] = Button(screen, name="back", text="<", text_x=510, text_y=558, shape="circle", center_x=520, center_y=575, radius=20)
-    BUTTONS["forward"] = Button(screen, name="forward", text=">", text_x=565, text_y=558, shape="circle", center_x=570, center_y=575, radius=20)
+    # Creates buttons and adds them to BUTTONS dictionary
+    BUTTONS["start"] = RectangleButton(screen, name="start", text="START", text_x=345, text_y=560, top_left=WIDTH//2.3, top_right=558, bottom_left=120, bottom_right=34)
+    BUTTONS["clear"] = RectangleButton(screen, name="clear", text="CLEAR", text_x=625, text_y=560, top_left=620, top_right=558, bottom_left=120, bottom_right=34)
+    BUTTONS["back"] = CircleButton(screen, name="back", text="<", text_x=510, text_y=558, center_x=520, center_y=575, radius=20)
+    BUTTONS["forward"] = CircleButton(screen, name="forward", text=">", text_x=565, text_y=558, center_x=570, center_y=575, radius=20)
 
-def update_window(pos, started, generation_count, screen, g):
+def update_window(pos, started, current_gen, screen, g):
+    # Updates the pygame screen 
     g.draw_grid(screen)
-    
+
+
+    # Default colors of buttons
     start_color = START_BUTTON_DARK
     clear_color = CLEAR_BUTTON_DARK
     back_color = MOVE_BUTTON_DARK
     forward_color = MOVE_BUTTON_DARK
     if pos is not None:
-        if BUTTONS["start"].mouse_over(pos) and not started:
+        # If Buttons are hovered change to brighter color
+        if BUTTONS["start"].mouse_over(pos, left_bound=328, right_bound=447, top_bound=560, bottom_bound=590) and not started:
             start_color = START_BUTTON_LIGHT
-        elif BUTTONS["start"].mouse_over(pos) and started:
+        elif BUTTONS["start"].mouse_over(pos, left_bound=328, right_bound=447, top_bound=560, bottom_bound=590) and started:
             start_color = STOP_BUTTON_LIGHT
-        elif BUTTONS["clear"].mouse_over(pos) and not started:
+        elif BUTTONS["clear"].mouse_over(pos, left_bound=620, right_bound=740, top_bound=560, bottom_bound=590) and not started:
             clear_color = CLEAR_BUTTON_LIGHT
         elif BUTTONS["back"].mouse_over(pos) and not started:
             back_color = MOVE_BUTTON_LIGHT
         elif BUTTONS["forward"].mouse_over(pos) and not started:
             forward_color = MOVE_BUTTON_LIGHT
+    # This is to change to stop color (red) if the game loop is "started"
     if started and start_color != STOP_BUTTON_LIGHT:
         start_color = STOP_BUTTON_DARK
+
     BUTTONS["start"].draw_button(start_color, started)
     BUTTONS["clear"].draw_button(clear_color, started)
     BUTTONS["back"].draw_button(back_color, started)
@@ -145,72 +197,103 @@ def update_window(pos, started, generation_count, screen, g):
 
     # Generation counter
     font = pygame.font.SysFont("Corbel", 35)
-    generation_text = font.render("Generation: "+str(generation_count), True, "black")
+    generation_text = font.render("Generation: "+str(current_gen), True, "black")
     screen.blit(generation_text, (70, 560))
 
     pygame.display.flip()
 
 
 def main():
-    # Screen stuff
     pygame.init()
-    # ---- PC size ----
-    # WIDTH, HEIGHT = 755, 800
-    # --- Laptop size ---
+    
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Game of Life")
     
     g = Grid()
-    create_buttons(screen)
+    # grid_states dictionary responsible for saving each grid (for the back and forward buttons)
+    grid_states = {}
 
+    create_buttons(screen)
+    
     clock = pygame.time.Clock()
     started = False
-    generation_count = 0
-    pos = None
+    current_gen = 0
     run = True
     while run:
         clock.tick(FPS)
         pos = pygame.mouse.get_pos()
+
         for event in pygame.event.get():
+            # Escape and the X close application
             if event.type == pygame.QUIT:
                 run = False
-
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     run = False
             
             # Left click heled down
             elif pygame.mouse.get_pressed()[0]:
+                # Draw onto grid if game isn't running
                 if not started:
-                    g.is_grid_clicked(pos, False)      
+                    g.is_grid_clicked(pos, False)
 
             # Right click held down
             elif pygame.mouse.get_pressed()[2]:
+                # Draw onto grid if game isn't running
                 if not started:
                     g.is_grid_clicked(pos, True)
 
+            # On click
             elif event.type == pygame.MOUSEBUTTONUP:
-                if BUTTONS["start"].mouse_over(pos) and not started:
+                # Start pressed
+                if BUTTONS["start"].mouse_over(pos, left_bound=328, right_bound=447, top_bound=560, bottom_bound=590) and not started:
                     started = True
-                elif BUTTONS["start"].mouse_over(pos) and started:
+                    grid_states[current_gen] = g.grid
+                elif BUTTONS["start"].mouse_over(pos, left_bound=328, right_bound=447, top_bound=560, bottom_bound=590) and started:
                     started = False
 
-                elif BUTTONS["back"].mouse_over(pos):
-                    pass
+                # Back pressed
+                if BUTTONS["back"].mouse_over(pos) and not started:
+                    # If there is a "grid state" in the one prior to the current generation then move to it
+                    if current_gen - 1 in grid_states:
+                        current_gen -= 1
+                        g.grid = grid_states[current_gen]
 
-                if BUTTONS["clear"].mouse_over(pos) and not started:
+                # Forward pressed
+                if BUTTONS["forward"].mouse_over(pos) and not started:
+                    # In case you decide to click forward without clicking start first (saves the initial generation)
+                    if current_gen == 0:
+                        grid_states[current_gen] = g.grid
+
+                    # Similar but opposite of back button in that it will get the next generation if at the end of "grid states"
+                    if current_gen + 1 in grid_states and grid_states[current_gen+1] == next_gen(g.grid):
+                        current_gen += 1
+                        g.grid = grid_states[current_gen]
+                    else:
+                        g.grid = next_gen(g.grid)
+                        current_gen += 1
+                        grid_states[current_gen] = g.grid
+
+                # Clear pressed
+                if BUTTONS["clear"].mouse_over(pos, left_bound=620, right_bound=740, top_bound=560, bottom_bound=590) and not started:
                     g.clear_grid()
-                    generation_count = 0
+                    grid_states.clear()
+                    current_gen = 0
 
         screen.fill("gray")
 
+        # If the start button was pressed
         if started:
             g.grid = next_gen(g.grid)
-            generation_count += 1
+            current_gen += 1
+            grid_states[current_gen] = g.grid
+            # Slows FPS to 5 so the grid doesn't update insanely fast
+            # (need to find a better solution because it makes the start/stop button "laggy" when game is 'started') 
             clock.tick(5)
+        
 
-        update_window(pos, started, generation_count, screen, g)
-
+        update_window(pos, started, current_gen, screen, g)
+    
     pygame.quit()
 
 
