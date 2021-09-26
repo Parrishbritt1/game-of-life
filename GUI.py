@@ -1,6 +1,7 @@
 import pygame
 from pygame.constants import KEYDOWN, K_ESCAPE
 from GOL import next_gen
+import grid
 import math
 
 # Screen
@@ -96,24 +97,10 @@ class RectangleButton(Button):
         return left_bound <= pos[0] <= right_bound and top_bound <= pos[1] <= bottom_bound
 
     
-class Grid:
-    def __init__(self):
-        self.row_length = 22
-        self.column_length = 30
-        self.cell_width = 20
-        self.cell_height = 20
-        self.margin = 5
-        self.grid = self.create_grid()
+class PygameGrid(grid.Grid):
+    def __init__(self, num_rows, num_cols, cell_width, cell_height, margin):
+        super().__init__(num_rows, num_cols, cell_width, cell_height, margin)
 
-    def create_grid(self):
-        """Creates 2D array filled with 0
-        """
-        grid = []
-        for i in range(self.row_length):
-            grid.append([])
-            for _ in range(self.column_length):
-                grid[i].append(0)
-        return grid
 
     def draw_grid(self, screen):
         """Draws the rectangles onto screen representing the grid
@@ -121,8 +108,8 @@ class Grid:
         Keyword aruments:
         screen -- the pygame screen to draw on
         """
-        for i in range(self.row_length):
-            for j in range(self.column_length):
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
                 color = "white"
                 if self.grid[i][j] == 1:
                     color = "green"
@@ -130,13 +117,6 @@ class Grid:
                                                 (self.margin + self.cell_height) * i + self.margin,
                                                 self.cell_width,
                                                 self.cell_height])
-
-    def clear_grid(self):
-        """Changes all elements in grid to 0
-        """
-        for i in range(self.row_length):
-            for j in range(self.column_length):
-                self.grid[i][j] = 0
 
     def is_grid_clicked(self, pos, is_right_click):
         """Changes grid element to be 0(dead) or 1(alive) depending on where the mouse is positioned at time of click
@@ -209,7 +189,7 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Game of Life")
     
-    g = Grid()
+    g = PygameGrid(num_rows=22, num_cols=30, cell_width=20, cell_height=20, margin=5)
     # grid_states dictionary responsible for saving each grid (for the back and forward buttons)
     grid_states = {}
 
