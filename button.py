@@ -12,18 +12,9 @@ class Button:
     def __str__(self):
         return self.name
 
-    def draw_button(self, started):
-        """Drawing background and text onto screen
-
-        Keyword arguments:
-        started -- Boolean to determine whether the 'start' button should say START or STOP 
+    def draw_button(self):
+        """Drawing text onto screen
         """        
-
-        if self.name == "start" and started:
-            self.text = "STOP"
-        elif self.name == "start" and not started:
-            self.text = "START"
-
         font = pygame.font.SysFont("Corbel", 35)
         text = font.render(self.text, True, "black")
         self.screen.blit(text, (self.text_x, self.text_y))        
@@ -36,9 +27,11 @@ class CircleButton(Button):
         self.center_y = center_y
         self.radius = radius
 
-    def draw_button(self, color, started):
+    def draw_button(self, color):
+        """Drawing background onto screen and calls parent draw_button to draw text
+        """   
         pygame.draw.circle(self.screen, color, (self.center_x, self.center_y), self.radius)
-        super().draw_button(started)
+        super().draw_button()
 
     def mouse_over(self, pos):
         """Returns True if mouse is over Button
@@ -57,9 +50,11 @@ class RectangleButton(Button):
         self.bottom_left = bottom_left
         self.bottom_right = bottom_right
 
-    def draw_button(self, color, started):
+    def draw_button(self, color):
+        """Drawing background onto screen and calls parent draw_button to draw text
+        """   
         pygame.draw.rect(self.screen, color, [self.top_left, self.top_right, self.bottom_left, self.bottom_right])
-        super().draw_button(started)
+        super().draw_button()
 
     def mouse_over(self, pos, left_bound, right_bound, top_bound, bottom_bound):
         """Returns True if mouse is over Button

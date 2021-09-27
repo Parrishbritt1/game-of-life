@@ -96,10 +96,16 @@ def update_window(pos, started, current_gen, screen, g):
     if started and start_color != STOP_BUTTON_LIGHT:
         start_color = STOP_BUTTON_DARK
 
-    BUTTONS["start"].draw_button(start_color, started)
-    BUTTONS["clear"].draw_button(clear_color, started)
-    BUTTONS["back"].draw_button(back_color, started)
-    BUTTONS["forward"].draw_button(forward_color, started)
+    # Change text on start button if game is "started"
+    if started:
+        BUTTONS["start"].text = "STOP"
+    else:
+        BUTTONS["start"].text = "START"
+
+    BUTTONS["start"].draw_button(start_color)
+    BUTTONS["clear"].draw_button(clear_color)
+    BUTTONS["back"].draw_button(back_color)
+    BUTTONS["forward"].draw_button(forward_color)
 
     # Generation counter
     font = pygame.font.SysFont("Corbel", 35)
