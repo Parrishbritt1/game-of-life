@@ -43,17 +43,17 @@ class CircleButton(Button):
 
 
 class RectangleButton(Button):
-    def __init__(self, screen, name, text, text_x, text_y, top_left, top_right, bottom_left, bottom_right):
+    def __init__(self, screen, name, text, text_x, text_y, x, y, width, height):
         super().__init__(screen, name, text, text_x, text_y)
-        self.top_left = top_left
-        self.top_right = top_right
-        self.bottom_left = bottom_left
-        self.bottom_right = bottom_right
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
 
     def draw_button(self, color):
         """Drawing background onto screen and calls parent draw_button to draw text
         """   
-        pygame.draw.rect(self.screen, color, [self.top_left, self.top_right, self.bottom_left, self.bottom_right])
+        pygame.draw.rect(self.screen, color, [self.x, self.y, self.width, self.height])
         super().draw_button()
 
     def mouse_over(self, pos, left_bound, right_bound, top_bound, bottom_bound):

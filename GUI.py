@@ -65,8 +65,8 @@ class PygameGrid(grid.Grid):
 
 def create_buttons(screen):
     # Creates buttons and adds them to BUTTONS dictionary
-    BUTTONS["start"] = RectangleButton(screen, name="start", text="START", text_x=345, text_y=560, top_left=WIDTH//2.3, top_right=558, bottom_left=120, bottom_right=34)
-    BUTTONS["clear"] = RectangleButton(screen, name="clear", text="CLEAR", text_x=625, text_y=560, top_left=620, top_right=558, bottom_left=120, bottom_right=34)
+    BUTTONS["start"] = RectangleButton(screen, name="start", text="START", text_x=345, text_y=560, x=WIDTH//2.3, y=558, width=120, height=34)
+    BUTTONS["clear"] = RectangleButton(screen, name="clear", text="CLEAR", text_x=625, text_y=560, x=620, y=558, width=120, height=34)
     BUTTONS["back"] = CircleButton(screen, name="back", text="<", text_x=510, text_y=558, center_x=520, center_y=575, radius=20)
     BUTTONS["forward"] = CircleButton(screen, name="forward", text=">", text_x=565, text_y=558, center_x=570, center_y=575, radius=20)
 
