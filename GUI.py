@@ -74,7 +74,6 @@ def update_window(pos, started, current_gen, screen, g):
     # Updates the pygame screen 
     g.draw_grid(screen)
 
-
     # Default colors of buttons
     start_color = START_BUTTON_DARK
     clear_color = CLEAR_BUTTON_DARK
@@ -82,11 +81,11 @@ def update_window(pos, started, current_gen, screen, g):
     forward_color = MOVE_BUTTON_DARK
     if pos is not None:
         # If Buttons are hovered change to brighter color
-        if BUTTONS["start"].mouse_over(pos, left_bound=328, right_bound=447, top_bound=560, bottom_bound=590) and not started:
+        if BUTTONS["start"].mouse_over(pos) and not started:
             start_color = START_BUTTON_LIGHT
-        elif BUTTONS["start"].mouse_over(pos, left_bound=328, right_bound=447, top_bound=560, bottom_bound=590) and started:
+        elif BUTTONS["start"].mouse_over(pos) and started:
             start_color = STOP_BUTTON_LIGHT
-        elif BUTTONS["clear"].mouse_over(pos, left_bound=620, right_bound=740, top_bound=560, bottom_bound=590) and not started:
+        elif BUTTONS["clear"].mouse_over(pos) and not started:
             clear_color = CLEAR_BUTTON_LIGHT
         elif BUTTONS["back"].mouse_over(pos) and not started:
             back_color = MOVE_BUTTON_LIGHT
@@ -158,10 +157,10 @@ def main():
             # On click
             elif event.type == pygame.MOUSEBUTTONUP:
                 # Start pressed
-                if BUTTONS["start"].mouse_over(pos, left_bound=328, right_bound=447, top_bound=560, bottom_bound=590) and not started:
+                if BUTTONS["start"].mouse_over(pos) and not started:
                     started = True
                     grid_states[current_gen] = g.grid
-                elif BUTTONS["start"].mouse_over(pos, left_bound=328, right_bound=447, top_bound=560, bottom_bound=590) and started:
+                elif BUTTONS["start"].mouse_over(pos) and started:
                     started = False
 
                 # Back pressed
@@ -187,7 +186,7 @@ def main():
                         grid_states[current_gen] = g.grid
 
                 # Clear pressed
-                if BUTTONS["clear"].mouse_over(pos, left_bound=620, right_bound=740, top_bound=560, bottom_bound=590) and not started:
+                if BUTTONS["clear"].mouse_over(pos) and not started:
                     g.clear_grid()
                     grid_states.clear()
                     current_gen = 0

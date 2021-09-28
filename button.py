@@ -56,14 +56,10 @@ class RectangleButton(Button):
         pygame.draw.rect(self.screen, color, [self.x, self.y, self.width, self.height])
         super().draw_button()
 
-    def mouse_over(self, pos, left_bound, right_bound, top_bound, bottom_bound):
+    def mouse_over(self, pos):
         """Returns True if mouse is over Button
 
         Keyword arguments:
         pos -- (x, y) coords of mouse position
-        left_bound -- x coord for left of button
-        right_bound -- x coord for right of button
-        top_bound -- y coord for top of button
-        bottom_bound -- y coord for bottom of button
         """
-        return left_bound <= pos[0] <= right_bound and top_bound <= pos[1] <= bottom_bound
+        return self.x <= pos[0] <= self.x + self.width and self.y <= pos[1] <= self.y + self.height
